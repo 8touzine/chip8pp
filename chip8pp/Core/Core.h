@@ -17,6 +17,7 @@ private:
 	unsigned char delay_timer;
 	unsigned char sound_timer;
 	unsigned char framebuffer[64 * 32];
+	bool drawFlag;
 
 public:
 
