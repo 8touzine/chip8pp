@@ -18,6 +18,8 @@ private:
 	unsigned char sound_timer;
 	unsigned char framebuffer[64 * 32];
 	bool drawFlag;
+	bool awaitingKey;
+	unsigned char awaitingRegister; 
 
 public:
 

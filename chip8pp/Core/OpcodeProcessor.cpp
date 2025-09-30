@@ -8,12 +8,12 @@ OpcodeProcessor::OpcodeProcessor(int screenW, int screenH)
 
 
 
-void OpcodeProcessor::clearFrame(int* framebuffer[], bool* drawflag)
+void OpcodeProcessor::clearFrame(int* framebuffer, bool* drawflag)
 {
 	int totalFrames = screenWidth * screenHeight;
 	for (int x = 0; x < totalFrames; x++)
 	{
-		*framebuffer[x] = 0;
+		framebuffer[x] = 0;
 	}
 
 	*drawflag = true;
@@ -157,5 +157,226 @@ void OpcodeProcessor::vx8FFF(
 	default:
 		break;
 	}
+	*pc = 2;
+}
 
+void OpcodeProcessor::op9FFF(
+	unsigned char opcode, 
+	unsigned char* V, 
+	unsigned short* pc)
+{
+	if (V[(opcode & 0x0F00) >> 8] != V[opcode & 0x00F0 >> 4])
+	{
+		*pc += 4;
+	}
+	*pc += 2;
+}
+
+void OpcodeProcessor::opAFFF(
+	unsigned char opcode, 
+	unsigned short* I, 
+	unsigned short* pc)
+{
+	*I = opcode & 0x0FFF;
+	*pc += 2;
+}
+
+void OpcodeProcessor::opBFFF(
+	unsigned char opcode, 
+	unsigned char* pc, 
+	unsigned char* V)
+{
+	*pc = V[0] + (opcode & 0x0FFF);
+}
+
+void OpcodeProcessor::opCFFF(
+	unsigned char opcode, 
+	unsigned char* pc, 
+	unsigned char* V)
+{
+	unsigned char X = (opcode & 0x0F00) >> 8;
+
+	V[X] = (unsigned char)(rand() % 255) & (opcode & 0x00FF);
+	pc += 2;
+}
+
+void OpcodeProcessor::opEFFF(
+	unsigned char opcode, 
+	unsigned char* pc, 
+	unsigned char* V, 
+	unsigned char* key)
+{
+	unsigned char X = (opcode & 0x0F00) >> 8;
+	switch (opcode & 0x00FF)
+	{
+	case 0x9E:
+		if (key[V[X]] != 0)
+		{
+			*pc += 4;
+		}
+		break;
+	case 0xA1:
+		if (key[V[X]] == 0)
+		{
+			*pc += 4;
+		}
+		break;
+	default:
+		break;
+	}
+	pc += 2;
+}
+
+void OpcodeProcessor::beeping()
+{
+	//sdl beep Mix_PlayChannel( -1, beep, 0 );
+	//todo: implimenter son avec SDL
+}
+
+void OpcodeProcessor::tickTimers(
+	unsigned char* delay_timer, 
+	unsigned char* sound_timer)
+{
+	if(*delay_timer > 0)
+	{
+		*delay_timer--;
+	}
+	if (*sound_timer > 0)
+	{
+		*sound_timer--;
+
+	}
+	if (*sound_timer == 0)
+	{
+		beeping();
+	}
+}
+
+void OpcodeProcessor::opFF18(
+	unsigned char opcode, 
+	unsigned char* sound_timer,
+	unsigned char* pc, 
+	unsigned char* V)
+{
+	unsigned char X = (opcode & 0x0F00) >> 8;
+	*sound_timer = V[X];
+	*pc += 2;
+}
+
+void OpcodeProcessor::opFF15(
+	unsigned char opcode, 
+	unsigned char* delay_timer, 
+	unsigned char* pc, 
+	unsigned char* V)
+{
+	unsigned char X = (opcode & 0x0F00) >> 8;
+	*delay_timer = V[X];
+	*pc += 2;
+}
+
+void OpcodeProcessor::opFF07(
+	unsigned char opcode, 
+	unsigned char* delay_timer, 
+	unsigned char* pc, 
+	unsigned char* V)
+{
+	unsigned char X = (opcode & 0x0F00) >> 8;
+	V[X] = (unsigned char)*delay_timer;
+	*pc += 2;
+}
+
+
+
+void OpcodeProcessor::setKey(
+	int index, 
+	bool pressed, 
+	unsigned char* pc, 
+	unsigned char* key, 
+	unsigned char* V,
+	bool* waitingKey,
+	unsigned char* awaitingRegister)
+{
+	key[index] = (unsigned char)(pressed ? 1 : 0);
+	if (waitingKey && pressed)
+	{
+		V[*awaitingRegister] = (unsigned char)index;
+		waitingKey = false;
+		*pc += 2;
+	}
+}
+
+void OpcodeProcessor::opFF0A(
+	unsigned char opcode, 
+	bool* waitingKey, 
+	unsigned char* awaitingRegister)
+{
+	unsigned char X = (opcode & 0x0F00) >> 8;
+	*waitingKey = true;
+	*awaitingRegister = X;
+}
+
+void OpcodeProcessor::opFF1E(
+	unsigned char opcode, 
+	unsigned char* pc,
+	unsigned char* V,
+	unsigned short* I)
+{
+	unsigned char X = (opcode & 0x0F00) >> 8;
+	*I = (*I + (V[X] & 0x00FF)) & 0x0FFF;
+}
+
+void OpcodeProcessor::opFF29(
+	unsigned char opcode, 
+	unsigned char* pc, 
+	unsigned char* V, 
+	unsigned short* I)
+{
+	unsigned char X = (opcode & 0x0F00) >> 8;
+	*I = 0x50 + (V[X]) * 5; //0x50 80 -> adress de base ou les fontset sont stocké
+
+}
+
+void OpcodeProcessor::opFF33(
+	unsigned char opcode, 
+	unsigned char* pc, 
+	Memory* mem,
+	unsigned short* I,
+	unsigned char* V)
+{
+	unsigned char X = (opcode & 0x0F00) >> 8;
+	mem->memory[*I] = (unsigned char)(V[X]) / 100;
+	mem->memory[*I + 1] = (unsigned char)(((V[X]) / 10) % 10);
+	mem->memory[*I + 1] = (unsigned char)((V[X]) % 10);
+}
+
+void OpcodeProcessor::opD000(
+	unsigned char opcode, 
+	int* framebuffer, 
+	unsigned char* V, 
+	unsigned short* I,
+	Memory* mem,
+	bool* drawflag,
+	unsigned char* pc)
+{
+	unsigned char x = V[(opcode & 0x0F00) >> 8];
+	unsigned char y = V[(opcode & 0x0F00) >> 4];
+	unsigned char n = opcode & 0x000F;
+	V[0xF] = 0;
+	for (unsigned char row = 0; row < n; row++)
+	{
+		unsigned char spriteByte = mem->memory[*I + row];
+		for (unsigned char bit = 0; bit < 8; bit++)
+		{
+			if ((spriteByte & (0x80 >> bit)) != 0)
+			{
+				//if(detectCollision(x+bit, y+row) == 1
+				//{
+				//V[0xF] = 1;
+				//}
+			}
+		}
+	}
+	*drawflag = true;
+	*pc += 2;
+	
 }

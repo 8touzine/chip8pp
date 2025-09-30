@@ -1,4 +1,6 @@
 #pragma once
+#include <cstdlib>
+#include "../Memory/Memory.h"
 
 class OpcodeProcessor {
 private:
@@ -10,7 +12,7 @@ public:
 	OpcodeProcessor(int screenW = 64, int screenH = 32);
 	~OpcodeProcessor() = default;
 
-	void clearFrame(int* framebuffer[], bool* drawflag);
+	void clearFrame(int* framebuffer, bool* drawflag);
 	void returnFromSubroutine(
 		unsigned short* pc, 
 		unsigned short* stack,
@@ -45,22 +47,85 @@ public:
 		unsigned char opcode,
 		unsigned char* V,
 		unsigned short* pc);
-	void op9FFF(unsigned char opcode);
-	void opAFFF(unsigned char opcode);
-	void opBFFF(unsigned char opcode);
-	void opCFFF(unsigned char opcode);
-	void opEFFF(unsigned char opcode);
+	void op9FFF(
+		unsigned char opcode,
+		unsigned char* V,
+		unsigned short* pc);
+	void opAFFF(
+		unsigned char opcode,
+		unsigned short* I,
+		unsigned short* pc);
+	void opBFFF(
+		unsigned char opcode,
+		unsigned char* pc,
+		unsigned char* V);
+	void opCFFF(
+		unsigned char opcode,
+		unsigned char* pc,
+		unsigned char* V);
+	void opEFFF(
+		unsigned char opcode,
+		unsigned char* pc,
+		unsigned char* V,
+		unsigned char* key);
 	void beeping();
-	void tickTimers();
-	void opFF18(unsigned char opcode);
-	void opFF15(unsigned char opcode);
-	void opFF07(unsigned char opcode);
-	void setKey(int index, bool pressed);
-	void opFF0A(unsigned char opcode);
-	void opFF1E(unsigned char opcode);
-	void opFF29(unsigned char opcode);
-	void opFF33(unsigned char opcode);
-	unsigned char opD000(unsigned char opcode);
+	void tickTimers(
+		unsigned char* delay_timer,
+		unsigned char* sound_timer);
+	void opFF18(
+		unsigned char opcode,
+		unsigned char* sound_timer,
+		unsigned char* pc,
+		unsigned char* V);
+	void opFF15(
+		unsigned char opcode,
+		unsigned char* delay_timer,
+		unsigned char* pc,
+		unsigned char* V);
+	void opFF07(
+		unsigned char opcode,
+		unsigned char* delay_timer,
+		unsigned char* pc,
+		unsigned char* V);
+	void setKey(
+		int index, 
+		bool pressed, 
+		unsigned char* pc, 
+		unsigned char* key, 
+		unsigned char* V, 
+		bool* waitingKey,
+		unsigned char* awaitingRegister);
+	void opFF0A(
+		unsigned char opcode,
+		bool* waitingKey,
+		unsigned char* awaitingRegister);
+	void opFF1E(
+		unsigned char opcode,
+		unsigned char* pc,
+		unsigned char* V,
+		unsigned short* I);
+	void opFF29(
+		unsigned char opcode,
+		unsigned char* pc,
+		unsigned char* V,
+		unsigned short* I);
+	void opFF33(
+		unsigned char opcode, 
+		unsigned char* pc,
+		Memory* mem,
+		unsigned short* I,
+		unsigned char* V);
+	void opD000(
+		unsigned char opcode,
+		int* framebuffer,
+		unsigned char* V,
+		unsigned short* I, 
+		Memory* mem,
+		bool* drawflag,
+		unsigned char* pc);
+	unsigned char detectCollision(
+		unsigned char x, 
+		unsigned char y,);
 	void opFF55(unsigned char opcode);
 	void opFF65(unsigned char opcode);
 };
