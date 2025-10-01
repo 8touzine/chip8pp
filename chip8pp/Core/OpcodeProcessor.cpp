@@ -8,7 +8,10 @@ OpcodeProcessor::OpcodeProcessor(int screenW, int screenH)
 
 
 
-void OpcodeProcessor::clearFrame(int* framebuffer, bool* drawflag)
+void OpcodeProcessor::clearFrame(
+	unsigned char* framebuffer, 
+	bool* drawflag,
+	unsigned short* pc)
 {
 	int totalFrames = screenWidth * screenHeight;
 	for (int x = 0; x < totalFrames; x++)
@@ -17,6 +20,7 @@ void OpcodeProcessor::clearFrame(int* framebuffer, bool* drawflag)
 	}
 
 	*drawflag = true;
+	*pc += 2;
 }
 
 void OpcodeProcessor::returnFromSubroutine(
@@ -88,6 +92,18 @@ void OpcodeProcessor::skipNext3(
 		*pc += 4;
 		return;
 	}
+	*pc += 2;
+}
+
+void OpcodeProcessor::setVxToVn(
+	unsigned char opcode, 
+	unsigned char* V, 
+	unsigned short* pc)
+{
+	unsigned char X = (opcode & 0x0F00) >> 8;
+	unsigned char NN = opcode & 0x00FF;
+
+	V[X] = (unsigned char)NN;
 	*pc += 2;
 }
 
@@ -183,7 +199,7 @@ void OpcodeProcessor::opAFFF(
 
 void OpcodeProcessor::opBFFF(
 	unsigned char opcode, 
-	unsigned char* pc, 
+	unsigned short* pc, 
 	unsigned char* V)
 {
 	*pc = V[0] + (opcode & 0x0FFF);
@@ -191,7 +207,7 @@ void OpcodeProcessor::opBFFF(
 
 void OpcodeProcessor::opCFFF(
 	unsigned char opcode, 
-	unsigned char* pc, 
+	unsigned short* pc, 
 	unsigned char* V)
 {
 	unsigned char X = (opcode & 0x0F00) >> 8;
@@ -202,7 +218,7 @@ void OpcodeProcessor::opCFFF(
 
 void OpcodeProcessor::opEFFF(
 	unsigned char opcode, 
-	unsigned char* pc, 
+	unsigned short* pc, 
 	unsigned char* V, 
 	unsigned char* key)
 {
@@ -255,7 +271,7 @@ void OpcodeProcessor::tickTimers(
 void OpcodeProcessor::opFF18(
 	unsigned char opcode, 
 	unsigned char* sound_timer,
-	unsigned char* pc, 
+	unsigned short* pc, 
 	unsigned char* V)
 {
 	unsigned char X = (opcode & 0x0F00) >> 8;
@@ -266,7 +282,7 @@ void OpcodeProcessor::opFF18(
 void OpcodeProcessor::opFF15(
 	unsigned char opcode, 
 	unsigned char* delay_timer, 
-	unsigned char* pc, 
+	unsigned short* pc, 
 	unsigned char* V)
 {
 	unsigned char X = (opcode & 0x0F00) >> 8;
@@ -277,7 +293,7 @@ void OpcodeProcessor::opFF15(
 void OpcodeProcessor::opFF07(
 	unsigned char opcode, 
 	unsigned char* delay_timer, 
-	unsigned char* pc, 
+	unsigned short* pc, 
 	unsigned char* V)
 {
 	unsigned char X = (opcode & 0x0F00) >> 8;
@@ -290,7 +306,7 @@ void OpcodeProcessor::opFF07(
 void OpcodeProcessor::setKey(
 	int index, 
 	bool pressed, 
-	unsigned char* pc, 
+	unsigned short* pc, 
 	unsigned char* key, 
 	unsigned char* V,
 	bool* waitingKey,
@@ -317,7 +333,7 @@ void OpcodeProcessor::opFF0A(
 
 void OpcodeProcessor::opFF1E(
 	unsigned char opcode, 
-	unsigned char* pc,
+	unsigned short* pc,
 	unsigned char* V,
 	unsigned short* I)
 {
@@ -327,7 +343,7 @@ void OpcodeProcessor::opFF1E(
 
 void OpcodeProcessor::opFF29(
 	unsigned char opcode, 
-	unsigned char* pc, 
+	unsigned short* pc, 
 	unsigned char* V, 
 	unsigned short* I)
 {
@@ -338,45 +354,92 @@ void OpcodeProcessor::opFF29(
 
 void OpcodeProcessor::opFF33(
 	unsigned char opcode, 
-	unsigned char* pc, 
+	unsigned short* pc, 
 	Memory* mem,
 	unsigned short* I,
 	unsigned char* V)
 {
 	unsigned char X = (opcode & 0x0F00) >> 8;
-	mem->memory[*I] = (unsigned char)(V[X]) / 100;
-	mem->memory[*I + 1] = (unsigned char)(((V[X]) / 10) % 10);
-	mem->memory[*I + 1] = (unsigned char)((V[X]) % 10);
+	mem->getMemory()[*I] = (unsigned char)(V[X]) / 100;
+	mem->getMemory()[*I + 1] = (unsigned char)(((V[X]) / 10) % 10);
+	mem->getMemory()[*I + 1] = (unsigned char)((V[X]) % 10);
 }
 
 void OpcodeProcessor::opD000(
 	unsigned char opcode, 
-	int* framebuffer, 
+	unsigned char* framebuffer, 
 	unsigned char* V, 
 	unsigned short* I,
 	Memory* mem,
 	bool* drawflag,
-	unsigned char* pc)
+	unsigned short* pc)
 {
 	unsigned char x = V[(opcode & 0x0F00) >> 8];
 	unsigned char y = V[(opcode & 0x0F00) >> 4];
 	unsigned char n = opcode & 0x000F;
 	V[0xF] = 0;
-	for (unsigned char row = 0; row < n; row++)
+	for (int row = 0; row < n; row++)
 	{
-		unsigned char spriteByte = mem->memory[*I + row];
-		for (unsigned char bit = 0; bit < 8; bit++)
+		unsigned char spriteByte = mem->getMemory()[*I + row]; //ligne de sprite a checker
+		for (int bit = 0; bit < 8; bit++)
 		{
-			if ((spriteByte & (0x80 >> bit)) != 0)
-			{
-				//if(detectCollision(x+bit, y+row) == 1
-				//{
-				//V[0xF] = 1;
-				//}
-			}
+			detectPixelToDraw(x, bit, y, row, spriteByte, framebuffer, V);
 		}
 	}
 	*drawflag = true;
 	*pc += 2;
 	
 }
+
+void OpcodeProcessor::detectPixelToDraw(
+	unsigned char x, 
+	int bit, 
+	unsigned char y, 
+	int row, 
+	unsigned char spriteByte, 
+	unsigned char* framebuffer, 
+	unsigned char* V)
+{
+	int pixelVector = x + bit + ((y + row) * 64);
+	// bit per bit check of row
+	if ((spriteByte & (0x80 >> bit)) != 0)
+	{
+		//1D Array
+		if (framebuffer[pixelVector] == 1)
+		{
+			V[0xF] = 1;
+			framebuffer[pixelVector] ^= 1;
+		}
+	}
+}
+
+void OpcodeProcessor::opFF55(
+	unsigned char opcode,
+	unsigned short* pc,
+	Memory* mem,
+	unsigned char* V,
+	unsigned short* I)
+{
+	unsigned char X = (opcode & 0x0F00) >> 8;
+	for (int i = 0; i <= X; X++)
+	{
+		mem->getMemory()[*I + i] = V[i];
+	}
+	*pc += 2;
+}
+
+void OpcodeProcessor::opFF65(
+	unsigned char opcode,
+	unsigned short* pc,
+	Memory* mem,
+	unsigned char* V,
+	unsigned short* I)
+{
+	unsigned char X = (opcode & 0x0F00) >> 8;
+	for (int i = 0; i <= X; X++)
+	{
+		V[i] = mem->getMemory()[*I + i];
+	}
+	*pc += 2;
+}
+

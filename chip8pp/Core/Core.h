@@ -4,6 +4,7 @@
 #include "../Display/DisplayBridge.h"
 #include "../Memory/Memory.h"
 #include "../Core/OpcodeProcessor.h"
+#include <stdio.h>
 
 class Core {
 private:
@@ -23,9 +24,9 @@ private:
 
 public:
 
-	void mainLoop();
-	void decode();
-	void fetchOpcode();
+	void mainLoop();	
+	int fetchOpcode();
+	void decode(int opcode);
 	void loadMemory();
 
 };
