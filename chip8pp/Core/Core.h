@@ -2,9 +2,11 @@
 
 #include <SDL.h>
 #include "../Display/IDisplayBridge.h"
+#include "../Display/Window.h"
 #include "../Memory/Memory.h"
 #include "../Core/OpcodeProcessor.h"
 #include <stdio.h>
+
 
 class Core {
 private:
@@ -24,7 +26,9 @@ private:
 	bool awaitingKey;
 	unsigned char awaitingRegister; 	
 public:
+	Core() {};
 	bool init();
+	void close();
 	void mainLoop();	
 	int fetchOpcode();
 	void decode(int opcode);

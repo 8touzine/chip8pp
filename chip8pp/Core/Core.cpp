@@ -1,5 +1,49 @@
 #include "Core.h"
 
+
+Core::Core()
+{
+	display = new Window(rendZER);
+}
+
+bool Core::init()
+{
+	bool success = true;
+
+	win = SDL_CreateWindow(
+		"chip8pp",
+		SDL_WINDOWPOS_UNDEFINED,
+		SDL_WINDOWPOS_UNDEFINED,
+		IDisplayBridge::WINDOWW,
+		IDisplayBridge::WINDOWH,
+		SDL_WINDOW_SHOWN);
+
+	if (win == NULL)
+	{
+		printf("problem window");
+		success = false;
+	}
+	else
+	{
+		printf("window init OK");
+		rendZER = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
+		if (rendZER == NULL)
+		{
+			printf("renderer problem");
+			success = false;
+		}
+	}
+	return success;
+}
+
+void Core::close()
+{
+	SDL_DestroyRenderer(rendZER);
+	SDL_DestroyWindow(win);
+	win = NULL;
+	SDL_Quit();
+}
+
 int Core::fetchOpcode()
 {
 	unsigned char high = memory->getMemory()[PC];
