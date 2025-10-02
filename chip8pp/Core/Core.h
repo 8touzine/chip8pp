@@ -1,16 +1,18 @@
 #pragma once
 
 #include <SDL.h>
-#include "../Display/DisplayBridge.h"
+#include "../Display/IDisplayBridge.h"
 #include "../Memory/Memory.h"
 #include "../Core/OpcodeProcessor.h"
 #include <stdio.h>
 
 class Core {
 private:
-	DisplayBridge* display = nullptr;
+	IDisplayBridge* display = nullptr;
 	Memory* memory = nullptr;
 	OpcodeProcessor* opcodeprocessor = nullptr;
+	SDL_Window* win = NULL;
+	SDL_Renderer* rendZER = NULL;
 	unsigned char V[16]; //general purpose registers
 	unsigned short opcode;
 	unsigned short I;
@@ -20,10 +22,9 @@ private:
 	unsigned char framebuffer[64 * 32];
 	bool drawFlag;
 	bool awaitingKey;
-	unsigned char awaitingRegister; 
-
+	unsigned char awaitingRegister; 	
 public:
-
+	bool init();
 	void mainLoop();	
 	int fetchOpcode();
 	void decode(int opcode);
