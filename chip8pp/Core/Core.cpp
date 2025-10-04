@@ -60,7 +60,7 @@ void Core::mainLoop()
 		SDL_Event e;
 		memory = new Memory();
 		memory->loadFontset();
-		memory->loadRom("rom/Space Invaders [David Winter].ch8");
+		memory->loadRom("rom/current.ch8");
 		opcodeprocessor = new OpcodeProcessor();
 		display = new Window(rendZER);
 		display->init();
