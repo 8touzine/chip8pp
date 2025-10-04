@@ -132,8 +132,8 @@ void Core::handleInput(SDL_Event& e, bool& quit)
 
 uint16_t Core::fetchOpcode()
 {
-	unsigned char high = memory->getMemory()[PC];
-	unsigned char low = memory->getMemory()[PC + 1];
+	uint8_t high = memory->getMemory()[PC];
+	uint8_t low = memory->getMemory()[PC + 1];
 	
 	uint16_t opcde = (high << 8) | low;
 	std::cout << "fetch"
@@ -185,7 +185,7 @@ void Core::decode(uint16_t opcode)
 		opcodeprocessor->setVxToVn(opcode, V, &PC);
 		break;
 	case 0x7000:
-		opcodeprocessor->addVxToVn(opcode, V, &PC);
+		opcodeprocessor->addNnToVx(opcode, V, &PC);
 		break;
 	case 0x8000:
 		opcodeprocessor->vx8FFF(opcode, V, &PC);

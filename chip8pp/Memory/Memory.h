@@ -8,16 +8,16 @@
 
 class Memory {
 private:
-	unsigned char memory[4096];
-	unsigned short stack[16];
+	uint8_t memory[4096];
+	uint16_t stack[16];
 	unsigned int sp = 0; //rsp;
-	//unsigned char fontSet[80];
+	//uint8_t fontSet[80];
 	const size_t MEMORY_SIZE = 4096;
 public:	
-	void loadToMemory(std::vector<unsigned char>, size_t offset);//fstream
+	void loadToMemory(std::vector<uint8_t>, size_t offset);//fstream
 	void loadFontset();
 	void loadRom(std::string path);
-	unsigned char* getMemory();
-	unsigned short* getStack();
+	uint8_t* getMemory();
+	uint16_t* getStack();
 	unsigned int* getSp();
 };

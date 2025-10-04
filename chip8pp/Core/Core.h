@@ -18,18 +18,18 @@ private:
 	OpcodeProcessor* opcodeprocessor = nullptr;
 	SDL_Window* win = NULL;
 	SDL_Renderer* rendZER = NULL;
-	unsigned char V[16]; //general purpose registers
+	uint8_t V[16]; //general purpose registers
 	uint16_t opcode;
 	unsigned short I;
 	uint16_t PC;//rip
-	unsigned char delay_timer;
-	unsigned char sound_timer;
-	unsigned char framebuffer[64 * 32];
-	unsigned char key[16];
+	uint8_t delay_timer;
+	uint8_t sound_timer;
+	uint8_t framebuffer[64 * 32];
+	uint8_t key[16];
 	bool drawFlag;
 	bool awaitingKey;
-	unsigned char awaitingRegister; 	
-	const int FRAME_DELAY = 1000 / 60; // 60Hz
+	uint8_t awaitingRegister; 	
+	const int FRAME_DELAY = 1000 / 120; // 60Hz
 public:
 	Core();
 	bool init();

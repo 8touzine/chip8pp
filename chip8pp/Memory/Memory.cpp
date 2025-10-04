@@ -1,6 +1,6 @@
 #include "Memory.h"
 
-void Memory::loadToMemory(std::vector<unsigned char> rom, size_t offset)
+void Memory::loadToMemory(std::vector<uint8_t> rom, size_t offset)
 {  
     //size_t as rom.size() returns size_t
     for (size_t i = 0; i < rom.size(); i++)
@@ -37,7 +37,7 @@ void Memory::loadRom(std::string path)
 
     if (size > 0)
     {
-        std::vector<unsigned char> buffer(size);
+        std::vector<uint8_t> buffer(size);
         
 
         if (rom.read(reinterpret_cast<char*>(buffer.data()), size))
@@ -50,12 +50,12 @@ void Memory::loadRom(std::string path)
     
 }
 
-unsigned char* Memory::getMemory()
+uint8_t* Memory::getMemory()
 {
     return memory;
 }
 
-unsigned short* Memory::getStack()
+uint16_t* Memory::getStack()
 {
     return stack;
 }

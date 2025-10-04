@@ -36,6 +36,10 @@ void Window::draw(unsigned char* framebuffer)
 		{
 			SDL_SetRenderDrawColor(canvas, 0x00, 0x00, 0xF1, 0xFF);
 		}
+		if (framebuffer[pix] == 0)
+		{
+			SDL_SetRenderDrawColor(canvas, 0x00, 0x00, 0x1F, 0xFF);
+		}
 		
 		SDL_RenderFillRect(canvas, &pixel);
 	}
