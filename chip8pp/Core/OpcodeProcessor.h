@@ -15,64 +15,64 @@ public:
 	void clearFrame(
 		unsigned char* framebuffer, 
 		bool* drawflag,
-		unsigned short* pc);
+		uint16_t* pc);
 	void returnFromSubroutine(
-		unsigned short* pc, 
+		uint16_t* pc, 
 		unsigned short* stack,
-		unsigned short* sp);
-	void jumpToAdress(unsigned char opcode, unsigned short* pc);
+		unsigned int* sp);
+	void jumpToAdress(unsigned short opcode, uint16_t* pc);
 	void callSubroutine(
-		unsigned char opcode,
-		unsigned short* pc,
+		unsigned short opcode,
+		uint16_t* pc,
 		unsigned short* stack,
-		unsigned short* sp);
+		unsigned int* sp);
 	void skipNext1(
-		unsigned char opcode,
+		unsigned short opcode,
 		unsigned char* V,
-		unsigned short* pc);
+		uint16_t* pc);
 	void skipNext2(
-		unsigned char opcode,
+		unsigned short opcode,
 		unsigned char* V,
-		unsigned short* pc);
+		uint16_t* pc);
 	void skipNext3(
-		unsigned char opcode,
+		unsigned short opcode,
 		unsigned char* V,
-		unsigned short* pc);
+		uint16_t* pc);
 	void setVxToVn(
-		unsigned char opcode,
+		unsigned short opcode,
 		unsigned char* V,
-		unsigned short* pc);
+		uint16_t* pc);
 	void addVxToVn(
-		unsigned char opcode,
+		unsigned short opcode,
 		unsigned char* V,
-		unsigned short* pc);
+		uint16_t* pc);
 	void addNnToVx(
-		unsigned char opcode,
+		unsigned short opcode,
 		unsigned char* V,
-		unsigned short* pc);
+		uint16_t* pc);
 	void vx8FFF(
-		unsigned char opcode,
+		unsigned short opcode,
 		unsigned char* V,
-		unsigned short* pc);
+		uint16_t* pc);
 	void op9FFF(
-		unsigned char opcode,
+		unsigned short opcode,
 		unsigned char* V,
-		unsigned short* pc);
+		uint16_t* pc);
 	void opAFFF(
-		unsigned char opcode,
+		unsigned short opcode,
 		unsigned short* I,
-		unsigned short* pc);
+		uint16_t* pc);
 	void opBFFF(
-		unsigned char opcode,
-		unsigned short* pc,
+		unsigned short opcode,
+		uint16_t* pc,
 		unsigned char* V);
 	void opCFFF(
-		unsigned char opcode,
-		unsigned short* pc,
+		unsigned short opcode,
+		uint16_t* pc,
 		unsigned char* V);
 	void opEFFF(
-		unsigned char opcode,
-		unsigned short* pc,
+		unsigned short opcode,
+		uint16_t* pc,
 		unsigned char* V,
 		unsigned char* key);
 	void beeping();
@@ -80,56 +80,56 @@ public:
 		unsigned char* delay_timer,
 		unsigned char* sound_timer);
 	void opFF18(
-		unsigned char opcode,
+		unsigned short opcode,
 		unsigned char* sound_timer,
-		unsigned short* pc,
+		uint16_t* pc,
 		unsigned char* V);
 	void opFF15(
-		unsigned char opcode,
+		unsigned short opcode,
 		unsigned char* delay_timer,
-		unsigned short* pc,
+		uint16_t* pc,
 		unsigned char* V);
 	void opFF07(
-		unsigned char opcode,
+		unsigned short opcode,
 		unsigned char* delay_timer,
-		unsigned short* pc,
+		uint16_t* pc,
 		unsigned char* V);
 	void setKey(
 		int index, 
 		bool pressed, 
-		unsigned short* pc, 
+		uint16_t* pc, 
 		unsigned char* key, 
 		unsigned char* V, 
 		bool* waitingKey,
 		unsigned char* awaitingRegister);
 	void opFF0A(
-		unsigned char opcode,
+		unsigned short opcode,
 		bool* waitingKey,
 		unsigned char* awaitingRegister);
 	void opFF1E(
-		unsigned char opcode,
-		unsigned short* pc,
+		unsigned short opcode,
+		uint16_t* pc,
 		unsigned char* V,
 		unsigned short* I);
 	void opFF29(
-		unsigned char opcode,
-		unsigned short* pc,
+		unsigned short opcode,
+		uint16_t* pc,
 		unsigned char* V,
 		unsigned short* I);
 	void opFF33(
-		unsigned char opcode, 
-		unsigned short* pc,
+		unsigned short opcode, 
+		uint16_t* pc,
 		Memory* mem,
 		unsigned short* I,
 		unsigned char* V);
 	void opD000(
-		unsigned char opcode,
+		unsigned short opcode,
 		unsigned char* framebuffer,
 		unsigned char* V,
 		unsigned short* I, 
 		Memory* mem,
 		bool* drawflag,
-		unsigned short* pc);
+		uint16_t* pc);
 	void detectPixelToDraw(
 		unsigned char x, 
 		int bit, 
@@ -143,14 +143,14 @@ public:
 		unsigned char y, 
 		unsigned char* framebuffer);*/
 	void opFF55(
-		unsigned char opcode, 
-		unsigned short* pc,
+		unsigned short opcode, 
+		uint16_t* pc,
 		Memory* mem,
 		unsigned char* V,
 		unsigned short* I);
 	void opFF65(
-		unsigned char opcode,
-		unsigned short* pc,
+		unsigned short opcode,
+		uint16_t* pc,
 		Memory* mem,
 		unsigned char* V,
 		unsigned short* I);

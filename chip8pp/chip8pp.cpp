@@ -5,8 +5,14 @@
 
 using namespace std;
 
-int main()
+int main(int argc, char* args[])
 {
-	cout << "Hello CMake." << endl;
+	printf("CHIP8PP");
+	Core* core = new Core();
+
+	core->mainLoop();
+
+	delete core;
+
 	return 0;
 }

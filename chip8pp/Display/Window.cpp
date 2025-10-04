@@ -21,10 +21,10 @@ void Window::draw(unsigned char* framebuffer)
 	SDL_RenderClear(canvas);
 	int x = 0;
 	int y = 0;
-	for (int pix; pix < frameBuffersize; pix++)
+	for (int pix = 0; pix < frameBuffersize; pix++)
 	{
 		x = (pix % screenW)* pixelSizeX;
-		y = (pix / screenH) * pixelSizeY;
+		y = (pix / screenW) * pixelSizeY;
 		/*if (pix >= 64)
 		{
 			y += pixelSizeY;
@@ -39,6 +39,6 @@ void Window::draw(unsigned char* framebuffer)
 		
 		SDL_RenderFillRect(canvas, &pixel);
 	}
-
+	SDL_RenderPresent(canvas);
 	
 }

@@ -3,7 +3,7 @@
 #
 
 # Add source to this project's executable.
-add_executable (chip8pp "chip8pp.cpp" "chip8pp.h" "Core/App.h" "Core/App.cpp" "Core/Core.h" "Core/Core.cpp" "Memory/Memory.h" "Memory/Memory.cpp" "Core/OpcodeProcessor.h" "Core/OpcodeProcessor.cpp" "Controls/Keyboard.h" "Controls/Keyboard.cpp" "Display/IDisplayBridge.h" "Display/Window.h" "Display/Window.cpp")
+add_executable (chip8pp "chip8pp.cpp" "chip8pp.h" "Core/App.h" "Core/App.cpp" "Core/Core.h" "Core/Core.cpp" "Memory/Memory.h" "Memory/Memory.cpp" "Core/OpcodeProcessor.h" "Core/OpcodeProcessor.cpp" "Controls/Keyboard.h"  "Display/IDisplayBridge.h" "Display/Window.h" "Display/Window.cpp" "Memory/Fontset.h")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET chip8pp PROPERTY CXX_STANDARD 20)
@@ -63,6 +63,12 @@ COMMAND ${CMAKE_COMMAND} -E copy_if_different
 "${CMAKE_SOURCE_DIR}/libs/SDL2_ttf/lib/x64/SDL2_ttf.dll"
 $<TARGET_FILE_DIR:chip8pp>)
 #############################
+
+##copy
+add_custom_command(TARGET chip8pp POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory
+"${CMAKE_SOURCE_DIR}/chip8pp/rom"
+$<TARGET_FILE_DIR:chip8pp>/rom)
 
 target_link_libraries(chip8pp PRIVATE
 SDL2.lib SDL2main.lib SDL2_image.lib SDL2_mixer.lib SDL2_ttf.lib)

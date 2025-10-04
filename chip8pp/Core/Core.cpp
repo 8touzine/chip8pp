@@ -3,7 +3,7 @@
 
 Core::Core()
 {
-	display = new Window(rendZER);
+	PC = 0x200;
 }
 
 bool Core::init()
@@ -38,21 +38,117 @@ bool Core::init()
 
 void Core::close()
 {
+	delete memory;
+	delete opcodeprocessor;
+	delete display;
 	SDL_DestroyRenderer(rendZER);
 	SDL_DestroyWindow(win);
 	win = NULL;
 	SDL_Quit();
 }
 
-int Core::fetchOpcode()
+void Core::mainLoop()
+{
+	if (!init())
+	{
+		printf("failed to initiate SDL");
+	}
+	else
+	{
+		bool quit = false;
+
+		SDL_Event e;
+		memory = new Memory();
+		memory->loadFontset();
+		memory->loadRom("rom/Space Invaders [David Winter].ch8");
+		opcodeprocessor = new OpcodeProcessor();
+		display = new Window(rendZER);
+		display->init();
+		while (!quit)
+		{
+			std::cout << PC << "\n";
+
+			Uint32 frameStart = SDL_GetTicks();
+
+			while (SDL_PollEvent(&e) != 0)
+			{
+
+				handleInput(e, quit);
+			
+			}
+				if (!awaitingKey)
+				{
+
+					opcode = fetchOpcode();
+					decode(opcode);
+
+				}				
+				
+			
+
+				opcodeprocessor->tickTimers(&delay_timer, &sound_timer);
+				if (drawFlag)
+				{
+					display->draw(framebuffer);
+				}
+				
+								
+			
+			Uint32 frameTime = SDL_GetTicks() - frameStart;
+			if (frameTime < FRAME_DELAY)
+			{
+				SDL_Delay(FRAME_DELAY - frameTime);
+			}
+		}
+		close();
+	}
+}
+
+void Core::handleInput(SDL_Event& e, bool& quit)
+{
+	if (e.type == SDL_QUIT)
+	{
+		quit = true;
+	}
+	if (e.type == SDL_KEYDOWN) 
+	{
+		auto keyz = keyboard.find(e.key.keysym.sym);
+		if (keyz != keyboard.end())
+		{
+			opcodeprocessor->setKey(keyz->second, true, &PC, key, V, &awaitingKey, &awaitingRegister);
+		}
+		
+	}
+	if (e.type == SDL_KEYUP)
+	{
+		auto keyz = keyboard.find(e.key.keysym.sym);
+		if (keyz != keyboard.end())
+		{
+			opcodeprocessor->setKey(keyz->second, false, &PC, key, V, &awaitingKey, &awaitingRegister);
+		}
+	}
+}
+
+
+uint16_t Core::fetchOpcode()
 {
 	unsigned char high = memory->getMemory()[PC];
 	unsigned char low = memory->getMemory()[PC + 1];
-	return (high << 8) | low;
+	
+	uint16_t opcde = (high << 8) | low;
+	std::cout << "fetch"
+		<< "PC=" << PC
+		<< " high=" << std::hex << (int)high
+		<< " low=" << (int)low
+		<< " opcode=" << opcde << std::dec << "\n";
+	return opcde;
 }
 
-void Core::decode(int opcode)
+void Core::decode(uint16_t opcode)
 {
+	std::cout << "decode"
+		<< "PC=" << PC	
+		<< " opcode=" << opcode << std::dec << "\n";
 	switch (opcode & 0xF000)
 	{
 	case 0x0000:
@@ -66,12 +162,12 @@ void Core::decode(int opcode)
 			break;
 		default:
 			printf("unkown opcode 0x0000");
-			*memory->getSp() += 2;
+			PC += 2;
 			break;
 		}
 		break;
 	case 0x1000:
-		opcodeprocessor->jumpToAdress(opcode, memory->getSp());
+		opcodeprocessor->jumpToAdress(opcode, &PC);
 		break;
 	case 0x2000:
 		opcodeprocessor->callSubroutine(opcode, &PC,memory->getStack(), memory->getSp());
@@ -110,7 +206,7 @@ void Core::decode(int opcode)
 		opcodeprocessor->opD000(opcode, framebuffer, V, &I, memory, &drawFlag, &PC);
 		break;
 	case 0xE000:
-		//opcodeprocessor->opEFFF(opcode, &PC, V, key);
+		opcodeprocessor->opEFFF(opcode, &PC, V, key);
 		break;
 	case 0xF000:
 		switch (opcode & 0x00FF)
@@ -128,7 +224,8 @@ void Core::decode(int opcode)
 			opcodeprocessor->opFF0A(opcode, &awaitingKey, &awaitingRegister);
 			break;
 		case 0x000E:
-			*memory->getSp() += 2;//derefencier sp et y acceder directement
+			printf("unkown opcode FXXE");
+			PC += 2;
 			break;
 		case 0x001E:
 			opcodeprocessor->opFF1E(opcode, &PC, V, &I);
@@ -148,13 +245,13 @@ void Core::decode(int opcode)
 
 		default:
 			printf("unkown opcode F000");
-			*memory->getSp() += 2;
+			PC += 2;
 			break;
 		}
 		break;
 	default:
 		printf("unkown opcode main");
-		*memory->getSp() += 2;
+		PC += 2;
 		break;
 	}
 }

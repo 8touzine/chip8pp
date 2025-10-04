@@ -11,7 +11,7 @@ OpcodeProcessor::OpcodeProcessor(int screenW, int screenH)
 void OpcodeProcessor::clearFrame(
 	unsigned char* framebuffer, 
 	bool* drawflag,
-	unsigned short* pc)
+	uint16_t* pc)
 {
 	int totalFrames = screenWidth * screenHeight;
 	for (int x = 0; x < totalFrames; x++)
@@ -24,34 +24,34 @@ void OpcodeProcessor::clearFrame(
 }
 
 void OpcodeProcessor::returnFromSubroutine(
-	unsigned short* pc, 
+	uint16_t* pc, 
 	unsigned short* stack, 
-	unsigned short* sp)
+	unsigned int* sp)
 {
-	*sp--;
+	*(sp)--; // =  *sp += 1
 	*pc = stack[*sp];
 }
 
-void OpcodeProcessor::jumpToAdress(unsigned char opcode, unsigned short* pc)
+void OpcodeProcessor::jumpToAdress(unsigned short opcode, uint16_t* pc)
 {
 	*pc = opcode & 0x0FFF;// last 3 bytes (NNN)
 }
 
 void OpcodeProcessor::callSubroutine(
-	unsigned char opcode, 
-	unsigned short* pc, 
+	unsigned short opcode, 
+	uint16_t* pc, 
 	unsigned short* stack, 
-	unsigned short* sp)
+	unsigned int* sp)
 {
 	stack[*sp] = *pc + 2;
-	*sp++;
-	*pc = opcode & 0xFFF;
+	*(sp)++;
+	*pc = opcode & 0x0FFF;
 }
 
 void OpcodeProcessor::skipNext1(
-	unsigned char opcode, 
+	unsigned short opcode, 
 	unsigned char* V, 
-	unsigned short* pc)
+	uint16_t* pc)
 {
 	unsigned char X = (opcode & 0x0F00) >> 8;
 	unsigned char NN = opcode & 0x00FF;
@@ -65,9 +65,9 @@ void OpcodeProcessor::skipNext1(
 }
 
 void OpcodeProcessor::skipNext2(
-	unsigned char opcode, 
+	unsigned short opcode, 
 	unsigned char* V, 
-	unsigned short* pc)
+	uint16_t* pc)
 {
 	unsigned char X = (opcode & 0x0F00) >> 8;
 	unsigned char NN = opcode & 0x00FF;
@@ -81,9 +81,9 @@ void OpcodeProcessor::skipNext2(
 }
 
 void OpcodeProcessor::skipNext3(
-	unsigned char opcode, 
+	unsigned short opcode, 
 	unsigned char* V, 
-	unsigned short* pc)
+	uint16_t* pc)
 {
 	unsigned char X = (opcode & 0x0F00) >> 8;
 	unsigned char Y = (opcode & 0x00F0) >> 4;
@@ -96,9 +96,9 @@ void OpcodeProcessor::skipNext3(
 }
 
 void OpcodeProcessor::setVxToVn(
-	unsigned char opcode, 
+	unsigned short opcode, 
 	unsigned char* V, 
-	unsigned short* pc)
+	uint16_t* pc)
 {
 	unsigned char X = (opcode & 0x0F00) >> 8;
 	unsigned char NN = opcode & 0x00FF;
@@ -108,20 +108,20 @@ void OpcodeProcessor::setVxToVn(
 }
 
 void OpcodeProcessor::addVxToVn(
-	unsigned char opcode, 
+	unsigned short opcode, 
 	unsigned char* V, 
-	unsigned short* pc)
+	uint16_t* pc)
 {
 	unsigned char X = (opcode & 0x0F00) >> 8;
 	unsigned char NN = opcode & 0x00FF;
-	V[X] = NN;
+	V[X] += NN;
 	*pc += 2;
 }
 
 void OpcodeProcessor::addNnToVx(
-	unsigned char opcode, 
+	unsigned short opcode, 
 	unsigned char* V, 
-	unsigned short* pc)
+	uint16_t* pc)
 {
 	unsigned char X = (opcode & 0x0F00) >> 8;
 	unsigned char NN = opcode & 0x00FF;
@@ -130,9 +130,9 @@ void OpcodeProcessor::addNnToVx(
 }
 
 void OpcodeProcessor::vx8FFF(
-	unsigned char opcode, 
+	unsigned short opcode, 
 	unsigned char* V, 
-	unsigned short* pc)
+	uint16_t* pc)
 {
 	unsigned char X = (opcode & 0x0F00) >> 8;
 	unsigned char Y = (opcode & 0x00F0) >> 4;
@@ -150,26 +150,34 @@ void OpcodeProcessor::vx8FFF(
 		break;
 	case 0x0003:
 		V[X] ^= V[Y];
+		break;
 	case 0x0004:
-		unsigned char sum = V[X] + V[Y];
-		V[0xF] = (unsigned char)(sum > 255) ? 1 : 0;
-		V[X] = (unsigned char) sum;
+		{
+		// scope issue c++
+		uint16_t sum = V[X] + V[Y];
+		V[0xF] = (sum > 255) ? 1 : 0;
+		V[X] = sum & 0xFF;
+		}
 		break;
 	case 0x0005:
+		{
 		V[0xF] = (unsigned char)(V[X] >= V[Y] ? 1 : 0);
 		unsigned char sub = V[X] - V[Y];
 		V[X] = (unsigned char)sub;
+		}
 		break;
 	case 0x0006:
 		V[0xF] = (unsigned char)V[X] & 0x1;
 		V[X] = (unsigned char)(V[X] & 0xFF) >> 1;
+		break;
 	case 0x0007:
 		V[0xF] = (unsigned char)V[Y] >= V[X] ? 1 : 0;
 		V[X] = (unsigned char)V[Y] - V[X];
 		break;
 	case 0x000E:
 		V[0xF] = (V[X] & 0x80) >> 7; // 0x80 -> 1000 0000 binary
-		V[X] = (unsigned char)V[Y] << 1;
+		V[X] = (unsigned char)V[X] << 1;
+		break;
 	default:
 		break;
 	}
@@ -177,11 +185,11 @@ void OpcodeProcessor::vx8FFF(
 }
 
 void OpcodeProcessor::op9FFF(
-	unsigned char opcode, 
+	unsigned short opcode, 
 	unsigned char* V, 
-	unsigned short* pc)
+	uint16_t* pc)
 {
-	if (V[(opcode & 0x0F00) >> 8] != V[opcode & 0x00F0 >> 4])
+	if (V[(opcode & 0x0F00) >> 8] != V[(opcode & 0x00F0) >> 4])
 	{
 		*pc += 4;
 	}
@@ -189,36 +197,36 @@ void OpcodeProcessor::op9FFF(
 }
 
 void OpcodeProcessor::opAFFF(
-	unsigned char opcode, 
+	unsigned short opcode, 
 	unsigned short* I, 
-	unsigned short* pc)
+	uint16_t* pc)
 {
 	*I = opcode & 0x0FFF;
 	*pc += 2;
 }
 
 void OpcodeProcessor::opBFFF(
-	unsigned char opcode, 
-	unsigned short* pc, 
+	unsigned short opcode, 
+	uint16_t* pc, 
 	unsigned char* V)
 {
 	*pc = V[0] + (opcode & 0x0FFF);
 }
 
 void OpcodeProcessor::opCFFF(
-	unsigned char opcode, 
-	unsigned short* pc, 
+	unsigned short opcode, 
+	uint16_t* pc, 
 	unsigned char* V)
 {
 	unsigned char X = (opcode & 0x0F00) >> 8;
 
-	V[X] = (unsigned char)(rand() % 255) & (opcode & 0x00FF);
-	pc += 2;
+	V[X] = (unsigned char)(rand() % 256) & (opcode & 0x00FF);
+	*pc += 2;
 }
 
 void OpcodeProcessor::opEFFF(
-	unsigned char opcode, 
-	unsigned short* pc, 
+	unsigned short opcode, 
+	uint16_t* pc, 
 	unsigned char* V, 
 	unsigned char* key)
 {
@@ -240,7 +248,7 @@ void OpcodeProcessor::opEFFF(
 	default:
 		break;
 	}
-	pc += 2;
+	*pc += 2;
 }
 
 void OpcodeProcessor::beeping()
@@ -269,9 +277,9 @@ void OpcodeProcessor::tickTimers(
 }
 
 void OpcodeProcessor::opFF18(
-	unsigned char opcode, 
+	unsigned short opcode, 
 	unsigned char* sound_timer,
-	unsigned short* pc, 
+	uint16_t* pc, 
 	unsigned char* V)
 {
 	unsigned char X = (opcode & 0x0F00) >> 8;
@@ -280,9 +288,9 @@ void OpcodeProcessor::opFF18(
 }
 
 void OpcodeProcessor::opFF15(
-	unsigned char opcode, 
+	unsigned short opcode, 
 	unsigned char* delay_timer, 
-	unsigned short* pc, 
+	uint16_t* pc, 
 	unsigned char* V)
 {
 	unsigned char X = (opcode & 0x0F00) >> 8;
@@ -291,9 +299,9 @@ void OpcodeProcessor::opFF15(
 }
 
 void OpcodeProcessor::opFF07(
-	unsigned char opcode, 
+	unsigned short opcode, 
 	unsigned char* delay_timer, 
-	unsigned short* pc, 
+	uint16_t* pc, 
 	unsigned char* V)
 {
 	unsigned char X = (opcode & 0x0F00) >> 8;
@@ -306,23 +314,23 @@ void OpcodeProcessor::opFF07(
 void OpcodeProcessor::setKey(
 	int index, 
 	bool pressed, 
-	unsigned short* pc, 
+	uint16_t* pc, 
 	unsigned char* key, 
 	unsigned char* V,
 	bool* waitingKey,
 	unsigned char* awaitingRegister)
 {
 	key[index] = (unsigned char)(pressed ? 1 : 0);
-	if (waitingKey && pressed)
+	if (*waitingKey && pressed)
 	{
 		V[*awaitingRegister] = (unsigned char)index;
-		waitingKey = false;
+		*waitingKey = false;
 		*pc += 2;
 	}
 }
 
 void OpcodeProcessor::opFF0A(
-	unsigned char opcode, 
+	unsigned short opcode, 
 	bool* waitingKey, 
 	unsigned char* awaitingRegister)
 {
@@ -332,18 +340,19 @@ void OpcodeProcessor::opFF0A(
 }
 
 void OpcodeProcessor::opFF1E(
-	unsigned char opcode, 
-	unsigned short* pc,
+	unsigned short opcode, 
+	uint16_t* pc,
 	unsigned char* V,
 	unsigned short* I)
 {
 	unsigned char X = (opcode & 0x0F00) >> 8;
 	*I = (*I + (V[X] & 0x00FF)) & 0x0FFF;
+	*pc += 2;
 }
 
 void OpcodeProcessor::opFF29(
-	unsigned char opcode, 
-	unsigned short* pc, 
+	unsigned short opcode, 
+	uint16_t* pc, 
 	unsigned char* V, 
 	unsigned short* I)
 {
@@ -353,8 +362,8 @@ void OpcodeProcessor::opFF29(
 }
 
 void OpcodeProcessor::opFF33(
-	unsigned char opcode, 
-	unsigned short* pc, 
+	unsigned short opcode, 
+	uint16_t* pc, 
 	Memory* mem,
 	unsigned short* I,
 	unsigned char* V)
@@ -362,20 +371,20 @@ void OpcodeProcessor::opFF33(
 	unsigned char X = (opcode & 0x0F00) >> 8;
 	mem->getMemory()[*I] = (unsigned char)(V[X]) / 100;
 	mem->getMemory()[*I + 1] = (unsigned char)(((V[X]) / 10) % 10);
-	mem->getMemory()[*I + 1] = (unsigned char)((V[X]) % 10);
+	mem->getMemory()[*I + 2] = (unsigned char)((V[X]) % 10);
 }
 
 void OpcodeProcessor::opD000(
-	unsigned char opcode, 
+	unsigned short opcode, 
 	unsigned char* framebuffer, 
 	unsigned char* V, 
 	unsigned short* I,
 	Memory* mem,
 	bool* drawflag,
-	unsigned short* pc)
+	uint16_t* pc)
 {
 	unsigned char x = V[(opcode & 0x0F00) >> 8];
-	unsigned char y = V[(opcode & 0x0F00) >> 4];
+	unsigned char y = V[(opcode & 0x00F0) >> 4];
 	unsigned char n = opcode & 0x000F;
 	V[0xF] = 0;
 	for (int row = 0; row < n; row++)
@@ -410,18 +419,22 @@ void OpcodeProcessor::detectPixelToDraw(
 			V[0xF] = 1;
 			framebuffer[pixelVector] ^= 1;
 		}
+		else
+		{
+			framebuffer[pixelVector] ^= 1;
+		}
 	}
 }
 
 void OpcodeProcessor::opFF55(
-	unsigned char opcode,
-	unsigned short* pc,
+	unsigned short opcode,
+	uint16_t* pc,
 	Memory* mem,
 	unsigned char* V,
 	unsigned short* I)
 {
 	unsigned char X = (opcode & 0x0F00) >> 8;
-	for (int i = 0; i <= X; X++)
+	for(int i = 0; i <= X; i++)
 	{
 		mem->getMemory()[*I + i] = V[i];
 	}
@@ -429,14 +442,14 @@ void OpcodeProcessor::opFF55(
 }
 
 void OpcodeProcessor::opFF65(
-	unsigned char opcode,
-	unsigned short* pc,
+	unsigned short opcode,
+	uint16_t* pc,
 	Memory* mem,
 	unsigned char* V,
 	unsigned short* I)
 {
 	unsigned char X = (opcode & 0x0F00) >> 8;
-	for (int i = 0; i <= X; X++)
+	for (int i = 0; i <= X; i++)
 	{
 		V[i] = mem->getMemory()[*I + i];
 	}
