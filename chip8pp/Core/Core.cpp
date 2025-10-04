@@ -76,13 +76,18 @@ void Core::mainLoop()
 				handleInput(e, quit);
 			
 			}
+
 				if (!awaitingKey)
 				{
 
 					opcode = fetchOpcode();
 					decode(opcode);
 
-				}				
+				}
+				else
+				{
+					printf("AWAITING KEY");
+				}
 				
 			
 
@@ -110,21 +115,23 @@ void Core::handleInput(SDL_Event& e, bool& quit)
 	{
 		quit = true;
 	}
-	if (e.type == SDL_KEYDOWN) 
+	if (e.type == SDL_KEYDOWN && e.key.repeat == 0) 
 	{
-		auto keyz = keyboard.find(e.key.keysym.sym);
-		if (keyz != keyboard.end())
+		auto input = keyboard.find(e.key.keysym.sym);
+		if (input != keyboard.end())
 		{
-			opcodeprocessor->setKey(keyz->second, true, &PC, key, V, &awaitingKey, &awaitingRegister);
+			opcodeprocessor->setKey(input->second, true, &PC, key, V, &awaitingKey, &awaitingRegister);
+			printf("pressed");
 		}
 		
-	}
-	if (e.type == SDL_KEYUP)
+	} 
+	else if (e.type == SDL_KEYUP)
 	{
-		auto keyz = keyboard.find(e.key.keysym.sym);
-		if (keyz != keyboard.end())
+		auto input = keyboard.find(e.key.keysym.sym);
+		if (input != keyboard.end())
 		{
-			opcodeprocessor->setKey(keyz->second, false, &PC, key, V, &awaitingKey, &awaitingRegister);
+			printf("release");
+			opcodeprocessor->setKey(input->second, false, &PC, key, V, &awaitingKey, &awaitingRegister);
 		}
 	}
 }

@@ -17,17 +17,17 @@ private:
 	Memory* memory = nullptr;
 	OpcodeProcessor* opcodeprocessor = nullptr;
 	SDL_Window* win = NULL;
-	SDL_Renderer* rendZER = NULL;
-	uint8_t V[16]; //general purpose registers
+	SDL_Renderer* rendZER = NULL;	
 	uint16_t opcode;
+	uint8_t V[16] = { 0 }; //general purpose registers
 	unsigned short I;
+	uint8_t framebuffer[64 * 32] = { 0 };
 	uint16_t PC;//rip
 	uint8_t delay_timer;
-	uint8_t sound_timer;
-	uint8_t framebuffer[64 * 32];
-	uint8_t key[16];
-	bool drawFlag;
-	bool awaitingKey;
+	uint8_t sound_timer;	
+	uint8_t key[16] = { 0 };
+	bool drawFlag = true;
+	bool awaitingKey = false;
 	uint8_t awaitingRegister; 	
 	const int FRAME_DELAY = 1000 / 120; // 60Hz
 public:

@@ -8,8 +8,8 @@
 
 class Memory {
 private:
-	uint8_t memory[4096];
-	uint16_t stack[16];
+	uint8_t memory[4096] = { 0 };
+	uint16_t stack[16] = { 0 };
 	unsigned int sp = 0; //rsp;
 	//uint8_t fontSet[80];
 	const size_t MEMORY_SIZE = 4096;

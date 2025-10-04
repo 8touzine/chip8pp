@@ -237,14 +237,18 @@ void OpcodeProcessor::opEFFF(
 	case 0x9E:
 		if (key[V[X]] != 0)
 		{
-			*pc += 4;
+			*pc += 4; 
+			return;
 		}
+		*pc += 2;
 		break;
 	case 0xA1:
 		if (key[V[X]] == 0)
 		{
 			*pc += 4;
+			return;
 		}
+		*pc += 2;
 		break;
 	default:
 		*pc += 2;
