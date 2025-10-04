@@ -50,13 +50,6 @@ Keys:
 
 ---
 
-## Author
-
-👤 **8touzine**  
-GitHub: [github.com/8touzine](https://github.com/8touzine)
-
----
-
 ## License
 
 MIT License
