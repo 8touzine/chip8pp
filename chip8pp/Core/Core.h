@@ -20,9 +20,9 @@ private:
 	SDL_Renderer* rendZER = NULL;	
 	uint16_t opcode;
 	uint8_t V[16] = { 0 }; //general purpose registers
-	unsigned short I;
-	uint8_t framebuffer[64 * 32] = { 0 };
+	unsigned short I;	
 	uint16_t PC;//rip
+	uint8_t framebuffer[64 * 32] = { 0 };
 	uint8_t delay_timer;
 	uint8_t sound_timer;	
 	uint8_t key[16] = { 0 };

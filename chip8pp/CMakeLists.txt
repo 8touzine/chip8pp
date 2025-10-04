@@ -3,7 +3,7 @@
 #
 
 # Add source to this project's executable.
-add_executable (chip8pp "chip8pp.cpp" "chip8pp.h" "Core/App.h" "Core/App.cpp" "Core/Core.h" "Core/Core.cpp" "Memory/Memory.h" "Memory/Memory.cpp" "Core/OpcodeProcessor.h" "Core/OpcodeProcessor.cpp" "Controls/Keyboard.h"  "Display/IDisplayBridge.h" "Display/Window.h" "Display/Window.cpp" "Memory/Fontset.h")
+add_executable (chip8pp "chip8pp.cpp" "chip8pp.h" "Core/App.h" "Core/App.cpp" "Core/Core.h" "Core/Core.cpp" "Memory/Memory.h" "Memory/Memory.cpp" "Core/OpcodeProcessor.h" "Core/OpcodeProcessor.cpp" "Controls/Keyboard.h"  "Display/IDisplayBridge.h" "Display/Window.h" "Display/Window.cpp" "Memory/Fontset.h" "Core/Cpu.h")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET chip8pp PROPERTY CXX_STANDARD 20)
