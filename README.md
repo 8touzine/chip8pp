@@ -14,7 +14,7 @@ A CHIP-8 emulator written in modern C++ using SDL2.
 - CPU cycle and main loop logic based on real CHIP-8 specs
 
 > **ROM path is currently hardcoded in the source code.**
-> To use another rom, renamed it to **current.ch8** and place it in /rom.  
+> To use another rom, rename it to **current.ch8** and place it in /rom.  
 > A future update may include a simple GUI or file selector to load `.ch8` ROMs manually.
 
 ---
