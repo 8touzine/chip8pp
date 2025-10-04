@@ -2,9 +2,7 @@
 
 A CHIP-8 emulator written in modern C++ using SDL2.
 
-<p align="center">
-  <img src="screenshot.png" width="480" alt="Space Invaders running on the emulator">
-</p>
+![screenshot](screenshot.PNG)
 
 ## Features
 
