@@ -7,6 +7,7 @@ A CHIP-8 emulator written in modern C++ using SDL2.
 ## Features
 
 - Fully working CHIP-8 interpreter (tested with **Space Invaders**)
+- Full compatibility to be implemented
 - Fetch, decode, and execute of all opcodes
 - Keyboard input mapped to CHIP-8 hex keypad
 - Graphics rendering using SDL2
