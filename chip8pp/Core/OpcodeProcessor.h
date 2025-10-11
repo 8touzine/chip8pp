@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdlib>
 #include "../Memory/Memory.h"
+#include "../Core/Cpu.h"
 
 class OpcodeProcessor {
 private:
@@ -15,65 +16,53 @@ public:
 	void clearFrame(
 		uint8_t* framebuffer, 
 		bool* drawflag,
-		uint16_t* pc);
+		Cpu* cpu);
 	void returnFromSubroutine(
-		uint16_t* pc, 
+		Cpu* cpu,
 		uint16_t* stack,
 		unsigned int* sp);
 	void jumpToAdress(uint16_t opcode, uint16_t* pc);
 	void callSubroutine(
 		uint16_t opcode,
-		uint16_t* pc,
+		Cpu* cpu,
 		uint16_t* stack,
 		unsigned int* sp);
 	void skipNext1(
 		uint16_t opcode,
-		uint8_t* V,
-		uint16_t* pc);
+		Cpu* cpu);
 	void skipNext2(
 		uint16_t opcode,
-		uint8_t* V,
-		uint16_t* pc);
+		Cpu* cpu);
 	void skipNext3(
 		uint16_t opcode,
-		uint8_t* V,
-		uint16_t* pc);
+		Cpu* cpu);
 	void setVxToVn(
 		uint16_t opcode,
-		uint8_t* V,
-		uint16_t* pc);
+		Cpu* cpu);
 	void addVxToVn(
 		uint16_t opcode,
-		uint8_t* V,
-		uint16_t* pc);
+		Cpu* cpu);
 	void addNnToVx(
 		uint16_t opcode,
-		uint8_t* V,
-		uint16_t* pc);
+		Cpu* cpu);
 	void vx8FFF(
 		uint16_t opcode,
-		uint8_t* V,
-		uint16_t* pc);
+		Cpu* cpu);
 	void op9FFF(
 		uint16_t opcode,
-		uint8_t* V,
-		uint16_t* pc);
+		Cpu* cpu);
 	void opAFFF(
 		uint16_t opcode,
-		uint16_t* I,
-		uint16_t* pc);
+		Cpu* cpu);
 	void opBFFF(
 		uint16_t opcode,
-		uint16_t* pc,
-		uint8_t* V);
+		Cpu* cpu);
 	void opCFFF(
 		uint16_t opcode,
-		uint16_t* pc,
-		uint8_t* V);
+		Cpu* cpu);
 	void opEFFF(
 		uint16_t opcode,
-		uint16_t* pc,
-		uint8_t* V,
+		Cpu* cpu,
 		uint8_t* key);
 	void beeping();
 	void tickTimers(
@@ -82,24 +71,20 @@ public:
 	void opFF18(
 		uint16_t opcode,
 		uint8_t* sound_timer,
-		uint16_t* pc,
-		uint8_t* V);
+		Cpu* cpu);
 	void opFF15(
 		uint16_t opcode,
 		uint8_t* delay_timer,
-		uint16_t* pc,
-		uint8_t* V);
+		Cpu* cpu);
 	void opFF07(
 		uint16_t opcode,
 		uint8_t* delay_timer,
-		uint16_t* pc,
-		uint8_t* V);
+		Cpu* cpu);
 	void setKey(
 		int index, 
-		bool pressed, 
-		uint16_t* pc, 
+		bool pressed, 		
 		uint8_t* key, 
-		uint8_t* V, 
+		Cpu* cpu,
 		bool* waitingKey,
 		uint8_t* awaitingRegister);
 	void opFF0A(
@@ -108,28 +93,21 @@ public:
 		uint8_t* awaitingRegister);
 	void opFF1E(
 		uint16_t opcode,
-		uint16_t* pc,
-		uint8_t* V,
-		uint16_t* I);
+		Cpu* cpu);
 	void opFF29(
 		uint16_t opcode,
-		uint16_t* pc,
-		uint8_t* V,
-		uint16_t* I);
+		Cpu* cpu);
 	void opFF33(
 		uint16_t opcode, 
 		uint16_t* pc,
 		Memory* mem,
-		uint16_t* I,
-		uint8_t* V);
+		Cpu* cpu);
 	void opD000(
 		uint16_t opcode,
 		uint8_t* framebuffer,
-		uint8_t* V,
-		uint16_t* I, 
 		Memory* mem,
 		bool* drawflag,
-		uint16_t* pc);
+		Cpu* cpu);
 	void detectPixelToDraw(
 		uint8_t x, 
 		int bit, 
@@ -137,21 +115,17 @@ public:
 		int row, 
 		uint8_t spriteByte, 
 		uint8_t* framebuffer, 
-		uint8_t* V);
+		Cpu* cpu);
 	/*uint8_t detectCollision(
 		uint8_t x, 
 		uint8_t y, 
 		uint8_t* framebuffer);*/
 	void opFF55(
 		uint16_t opcode, 
-		uint16_t* pc,
 		Memory* mem,
-		uint8_t* V,
-		uint16_t* I);
+		Cpu* cpu);
 	void opFF65(
 		uint16_t opcode,
-		uint16_t* pc,
 		Memory* mem,
-		uint8_t* V,
-		uint16_t* I);
+		Cpu* cpu);
 };

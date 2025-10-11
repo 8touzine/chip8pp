@@ -3,6 +3,8 @@
 
 Core::Core()
 {
+	*cpu = Cpu();
+	*cpu->getPC() = 0x200;
 	PC = 0x200;
 }
 

@@ -6,6 +6,7 @@
 #include "../Memory/Memory.h"
 #include "../Core/OpcodeProcessor.h"
 #include "../Controls/Keyboard.h"
+#include "Cpu.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -16,6 +17,7 @@ private:
 	IDisplayBridge* display = nullptr;
 	Memory* memory = nullptr;
 	OpcodeProcessor* opcodeprocessor = nullptr;
+	Cpu* cpu = nullptr;
 	SDL_Window* win = NULL;
 	SDL_Renderer* rendZER = NULL;	
 	uint16_t opcode;
